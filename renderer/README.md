@@ -3,8 +3,9 @@
 CUDA implementation of multiscale sphere tracing with GEMM-based analytical
 normals and neural normal/texture mapping — the source of the paper's
 real-time results (Tab. 4 renderer ablation, the FPS columns of Tab. 2, and
-the rendering figures). Windows-only (freeglut/GLEW binaries and OpenGL
-interop; tested with Visual Studio 2022, CUDA ≥ 12.1, CMake ≥ 3.23).
+the rendering figures). Built and tested on Windows (Visual Studio 2022,
+CUDA ≥ 12.1, CMake ≥ 3.23; freeglut/GLEW binaries ship in `cuda/lib`); also
+builds on Linux against the system freeglut/GLEW (see below).
 
 ## Build
 
@@ -25,10 +26,41 @@ Options:
   shapes are resolution-specific (`layer_gemms.cu`).
 - `-DMIP_BUILD_TESTS=ON` for the GoogleTest target.
 
+### Linux
+
+Tested on Ubuntu 24.04 (GCC 13, CUDA 12.9, CMake 3.28, RTX 5060 Laptop /
+sm_120). Install the GL development packages, then build as above with your
+GPU's architecture:
+
+```bash
+sudo apt install freeglut3-dev libglew-dev libglu1-mesa-dev
+cd renderer/cuda
+cmake -S . -B build120 -DMIP_CUDA_ARCH=120 -DCMAKE_BUILD_TYPE=Release
+cmake --build build120 -j
+cd build120 && ./MIP-plicitsRenderer -experiment=armadillo
+```
+
+If CMake picks up a CUDA toolkit your GCC doesn't support, pass
+`-DCMAKE_CUDA_COMPILER=/usr/local/cuda-12.9/bin/nvcc`. freeglut can also be
+built from source without root and found with `-DCMAKE_PREFIX_PATH=<prefix>`
+(add `<prefix>/lib` to `LD_LIBRARY_PATH` at run time).
+
+On hybrid-graphics laptops the display usually runs on the integrated GPU, and
+CUDA–OpenGL interop then fails. Run on the NVIDIA GPU with PRIME render offload:
+
+```bash
+__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ./MIP-plicitsRenderer -experiment=armadillo
+```
+
+`OpenGL version: ... NVIDIA` at startup confirms it. The "Shader compilation
+error ... gl_Color is deprecated" line is only a warning. Tiling window
+managers may resize the window; benchmark numbers are for the resolution
+printed in the `BENCHMARK` line.
+
 ## Run
 
 ```bash
-cd build/Release        # data/ and the DLLs are copied here post-build
+cd build/Release        # data/ and the DLLs are copied here post-build (Linux: build dir itself)
 MIP-plicitsRenderer.exe -list                      # available experiments
 MIP-plicitsRenderer.exe -experiment=armadillo      # interactive
 MIP-plicitsRenderer.exe -experiment=lucy -benchmark=500

@@ -1135,7 +1135,7 @@ private:
 
     float* inv_view_matrix = nullptr;
     float* inv_proj_matrix = nullptr;
-    cutlass::HostTensor<precision_t, LayerGemms::LayoutInputA> ray_directions;
+    cutlass::HostTensor<precision_t, typename LayerGemms::LayoutInputA> ray_directions;
     cutlass::HostTensor<uint, cutlass::layout::ColumnMajor> out_img;
 
     int last_lod_0_sphere_tracing_iters = 0;
@@ -1149,6 +1149,16 @@ unique_ptr<MIPplicitBase> mip_plicit_3d;
 unique_ptr<MIPplicitBase> mip_plicit_4d;
 Experiment experiment;
 int snapshot_counter = 0;
+
+// Frees the models' CUDA streams and buffers. Registered with atexit() once
+// CUDA is initialized, so it runs before the CUDA runtime unloads; left to the
+// static destructors, cudaStreamDestroy fails with "driver shutting down" and
+// aborts, dropping any buffered stdout (e.g. the BENCHMARK line).
+void ReleaseMIPplicits() {
+
+    mip_plicit_3d.reset();
+    mip_plicit_4d.reset();
+}
 
 // ================
 // State modifiers.

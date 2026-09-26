@@ -378,14 +378,14 @@ public:
     //cutlass::HostTensor<typename InputGemm::ElementB, typename InputGemm::LayoutB> input_tensor;
 
     // Gemm: input and first hidden layers.
-    LayerGemm<LayerGemms::InputGemm> input_gemm_a;     // Calculates a_0.
+    LayerGemm<typename LayerGemms::InputGemm> input_gemm_a;     // Calculates a_0.
     cutlass::HostTensor<typename LayerGemms::InputGemm::ElementB, typename LayerGemms::InputGemm::LayoutB> G0;
 
     // Gemm: hidden layers.
-    vector<LayerGemm<LayerGemms::HiddenGemm>> hidden_gemms_a; // Calculates a_i.
-    vector<LayerGemm<LayerGemms::HiddenGemm>> hidden_gemms_G; // Calculates G_i.
+    vector<LayerGemm<typename LayerGemms::HiddenGemm>> hidden_gemms_a; // Calculates a_i.
+    vector<LayerGemm<typename LayerGemms::HiddenGemm>> hidden_gemms_G; // Calculates G_i.
 
     // Gemm: third hidden and output layers.
-    LayerGemm<LayerGemms::OutputGemm> output_gemm_a;   // Calculates a_n.
-    LayerGemm<LayerGemms::OutputGemm> output_gemm_G;   // Calculates G_n.
+    LayerGemm<typename LayerGemms::OutputGemm> output_gemm_a;   // Calculates a_n.
+    LayerGemm<typename LayerGemms::OutputGemm> output_gemm_G;   // Calculates G_n.
 };

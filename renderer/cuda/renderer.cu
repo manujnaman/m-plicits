@@ -982,6 +982,7 @@ runStdProgram(int argc, char** argv)
 
     // Now initialize CUDA context (GL context has been created already)
     findCudaDevice(argc, (const char**)argv);
+    atexit(ReleaseMIPplicits);
 
     // Experiment selection: -experiment=<name> (see -list); default: armadillo.
     const Experiment* selected = &armadillo;

@@ -13,6 +13,24 @@ Isabelle Melo, Matheus Bessa, Guilherme Schardong, Luiz Schirmer, André
 Araújo, Nuno Gonçalves, Hélio Lopes, Alberto Raposo, Luiz Velho, Tiago
 Novello).
 
+> **About this fork.** This fork of
+> [dsilvavinicius/m-plicits](https://github.com/dsilvavinicius/m-plicits)
+> adapts the real-time renderer (`renderer/cuda`), which was Windows-only, to
+> build and run on Linux. Changes:
+> - **CMake:** links the system freeglut, GLEW, OpenGL and GLU on non-Windows
+>   platforms, and copies the bundled DLLs only on Windows.
+> - **GCC compatibility:** adds `typename` to dependent `LayerGemms` types,
+>   names an enum that only MSVC accepted as `static const`, and undefines
+>   X11's `Status` macro, which clashed with `cutlass::Status`.
+> - **Clean exit:** releases the models before the CUDA runtime unloads.
+>   Exiting used to abort with "driver shutting down" and lose the
+>   `BENCHMARK` output.
+> - **Docs:** Linux build steps and NVIDIA PRIME offload for hybrid-graphics
+>   laptops, in [renderer/README.md](renderer/README.md#linux).
+>
+> Tested on Ubuntu 24.04 with CUDA 12.9 on an RTX 5060 Laptop GPU (sm_120).
+> Training, reconstruction and the Windows build are unchanged.
+
 ![Noisy input, iNGP and M-plicits reconstructions of the same scan with 1% noise](docs/assets/readme_noise.jpg)
 
 M-plicits models a signed distance function as a base SIREN plus a sequence
@@ -34,7 +52,7 @@ absorb it.
 | `results/<shape>/<stage>/` (from the data archive) | Released checkpoints **and the exact config that trained them** |
 | `appendix_experiments/` | Drivers for every appendix experiment (isolation ablation, SPSR, BANF re-implementation, robustness studies) |
 | `metrics/` | The paper's evaluation protocol (CD / Hausdorff / voxel IoU) + baseline harnesses |
-| `renderer/` | Real-time CUDA renderer (Windows): multiscale sphere tracing, GEMM normals, normal/texture mapping, FPS benchmark, runtime loading of any released model |
+| `renderer/` | Real-time CUDA renderer (Windows, Linux): multiscale sphere tracing, GEMM normals, normal/texture mapping, FPS benchmark, runtime loading of any released model |
 | `attributes/` | Neural texture training on SDF level-set neighborhoods |
 | `tools/` | `download_data.py`, data preparation, archive builder |
 | `docs/` | The project page (GitHub Pages) |

@@ -1,5 +1,8 @@
 #include <helper_gl.h>
 #include <GL/freeglut.h>
+#ifdef Status
+#undef Status
+#endif
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -108,7 +111,7 @@ private:
         }
     }
 
-    static const enum {
+    enum MouseAction {
         ROTATION = 0,
         PAN,
         ZOOM

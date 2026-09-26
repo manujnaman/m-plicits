@@ -48,9 +48,15 @@ function(set_common_target_configs target)
 
     target_link_libraries(${target} PRIVATE
         cudart
-        freeglut
-        glew64
     )
+    if(WIN32)
+        target_link_libraries(${target} PRIVATE freeglut glew64)
+    else()
+        find_package(OpenGL REQUIRED)
+        find_package(GLEW REQUIRED)
+        find_library(GLUT_LIB NAMES glut freeglut REQUIRED)
+        target_link_libraries(${target} PRIVATE ${GLUT_LIB} GLEW::GLEW OpenGL::GL OpenGL::GLU)
+    endif()
 
     include(FetchContent)
 
@@ -71,10 +77,12 @@ function(set_common_target_configs target)
         ${PROJECT_SOURCE_DIR}/data $<TARGET_FILE_DIR:${target}>/data
     )
 
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${PROJECT_SOURCE_DIR}/lib/dll $<TARGET_FILE_DIR:${target}>
-    )
+    if(WIN32)
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${PROJECT_SOURCE_DIR}/lib/dll $<TARGET_FILE_DIR:${target}>
+        )
+    endif()
 endfunction()
 
 set(CMAKE_CUDA_RUNTIME_LIBRARY Shared)
